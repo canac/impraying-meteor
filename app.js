@@ -14,13 +14,17 @@ if (Meteor.isClient) {
     // Create a new prayer request
     this.createPrayer = function() {
       this.prayers.push({
-        author: 1,
+        author: Meteor.userId(),
         content: this.request,
         timestamp: new Date(),
       });
 
       // Clear the request in preparation for creating the next one
       this.request = '';
+    };
+
+    this.lookupUser = function(userId) {
+      return Meteor.users.findOne(userId);
     };
   });
 }

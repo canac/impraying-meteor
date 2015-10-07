@@ -1,5 +1,7 @@
 <div layout="column" ng-cloak>
   <md-content layout-padding>
+    <blaze-template name="loginButtons"></blaze-template>
+
     <form ng-submit="impraying.createPrayer()">
       <md-input-container>
         <label>New request</label>
@@ -11,9 +13,9 @@
     </form>
     <md-list>
       <md-list-item class="md-2-line" ng-repeat="prayer in impraying.prayers">
-        <img ng-src="http://graph.facebook.com/{{prayer.author}}/picture" class="md-avatar" />
+        <img ng-src="http://graph.facebook.com/{{impraying.lookupUser(prayer.author).services.facebook.id}}/picture" class="md-avatar" />
         <div class="md-list-item-text">
-          <h3>{{ prayer.author }} (<span am-time-ago="prayer.timestamp"></span>)</h3>
+          <h3>{{ impraying.lookupUser(prayer.author).profile.name }} (<span am-time-ago="prayer.timestamp"></span>)</h3>
           <p>{{ prayer.content }}</p>
         </div>
       </md-list-item>
