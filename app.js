@@ -7,7 +7,9 @@ if (Meteor.isClient) {
   app.controller('ImPrayingCtrl', function($meteor) {
     // Initialize the scope variables
     this.request = '';
-    this.prayers = $meteor.collection(Prayers);
+    this.prayers = $meteor.collection(function() {
+      return Prayers.find({}, { sort: { timestamp: -1 } });
+    });
 
     // Create a new prayer request
     this.createPrayer = function() {

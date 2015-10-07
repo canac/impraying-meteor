@@ -10,7 +10,7 @@
       </md-input-container>
     </form>
     <md-list>
-      <md-list-item class="md-2-line" ng-repeat="prayer in impraying.prayers | orderBy:'-timestamp'">
+      <md-list-item class="md-2-line" ng-repeat="prayer in impraying.prayers">
         <img ng-src="http://graph.facebook.com/{{prayer.author}}/picture" class="md-avatar" />
         <div class="md-list-item-text">
           <h3>{{ prayer.author }} (<span am-time-ago="prayer.timestamp"></span>)</h3>
