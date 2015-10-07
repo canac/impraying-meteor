@@ -2,9 +2,22 @@ const Prayers = new Mongo.Collection('prayers');
 
 if (Meteor.isClient) {
   // This code only runs on the client
-  var app = angular.module('im-praying', ['angular-meteor', 'ngMaterial', 'angularMoment']);
+  var app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
 
-  app.controller('ImPrayingCtrl', function($meteor) {
+  app.config(function($stateProvider, $urlRouterProvider) {
+    $stateProvider.state('prayers', {
+      url: '/prayers',
+      templateUrl: 'client/prayers.ng.html',
+      controller: 'PrayersCtrl',
+      controllerAs: 'prayers',
+    });
+
+    $urlRouterProvider.otherwise('/prayers');
+  });
+
+  app.controller('ImPrayingCtrl', function() {});
+
+  app.controller('PrayersCtrl', function($meteor) {
     // Initialize the scope variables
     this.request = '';
     this.prayers = $meteor.collection(function() {

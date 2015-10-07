@@ -1,0 +1,22 @@
+<div layout="column" ng-cloak>
+  <md-content layout-padding>
+    <form ng-submit="prayers.createPrayer()">
+      <md-input-container>
+        <label>New request</label>
+        <input ng-model="prayers.request">
+      </md-input-container>
+      <md-input-container>
+        <md-button md-no-ink class="md-primary" ng-show="prayers.request">Create request</md-button>
+      </md-input-container>
+    </form>
+    <md-list>
+      <md-list-item class="md-2-line" ng-repeat="prayer in prayers.prayers">
+        <img ng-src="http://graph.facebook.com/{{prayers.lookupUser(prayer.author).services.facebook.id}}/picture" class="md-avatar" />
+        <div class="md-list-item-text">
+          <h3>{{ prayers.lookupUser(prayer.author).profile.name }} (<span am-time-ago="prayer.timestamp"></span>)</h3>
+          <p>{{ prayer.content }}</p>
+        </div>
+      </md-list-item>
+    </md-list>
+  </md-content>
+</div>
