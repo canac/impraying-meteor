@@ -2,7 +2,7 @@ const Prayers = new Mongo.Collection('prayers');
 
 if (Meteor.isClient) {
   // This code only runs on the client
-  var app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
+  const app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
 
   app.config(function($stateProvider, $urlRouterProvider) {
     $stateProvider.state('prayers', {
@@ -20,9 +20,7 @@ if (Meteor.isClient) {
   app.controller('PrayersCtrl', function($meteor) {
     // Initialize the scope variables
     this.request = '';
-    this.prayers = $meteor.collection(function() {
-      return Prayers.find({}, { sort: { timestamp: -1 } });
-    });
+    this.prayers = $meteor.collection(() => Prayers.find({}, { sort: { timestamp: -1 } }));
 
     // Create a new prayer request
     this.createPrayer = function() {
@@ -36,9 +34,7 @@ if (Meteor.isClient) {
       this.request = '';
     };
 
-    this.lookupUser = function(userId) {
-      return Meteor.users.findOne(userId);
-    };
+    this.lookupUser = (userId) => Meteor.users.findOne(userId);
   });
 }
 
