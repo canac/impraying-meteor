@@ -39,10 +39,10 @@ if (Meteor.isClient) {
     };
   });
 
-  app.controller('PrayerListCtrl', function($meteor, $state) {
+  app.controller('PrayerListCtrl', function($scope, $meteor, $state) {
     // Initialize the scope variables
     this.request = '';
-    this.prayers = $meteor.collection(() => Prayers.find({}, { sort: { timestamp: -1 } }));
+    this.prayers = $scope.$meteorCollection(() => Prayers.find({}, { sort: { timestamp: -1 } }));
 
     // Create a new prayer request
     this.createPrayer = function() {
@@ -58,10 +58,10 @@ if (Meteor.isClient) {
     };
   });
 
-  app.controller('PrayerDetailCtrl', function($meteor, $state, $stateParams) {
+  app.controller('PrayerDetailCtrl', function($scope, $meteor, $state, $stateParams) {
     const prayerId = $stateParams.id;
     this.prayer = Prayers.findOne(prayerId);
-    this.comments = $meteor.collection(() => Comments.find({ prayerId }, { sort: { timestamp: -1 } }));
+    this.comments = $scope.$meteorCollection(() => Comments.find({ prayerId }, { sort: { timestamp: -1 } }));
 
     // Create a new comment on the prayer request
     this.createComment = function() {
