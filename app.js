@@ -27,6 +27,16 @@ if (Meteor.isClient) {
 
     // Return a boolean indicating whether or not the provided user id is the currently logged-in user
     $scope.isCurrentUser = (userId) => userId === Meteor.userId();
+
+    // Authenticate the user via Facebook
+    this.login = function() {
+      Meteor.loginWithFacebook({ requestPermissions: ['public_profile'] });
+    };
+
+    // Deauthenticate the user
+    this.logout = function() {
+      Meteor.logout();
+    };
   });
 
   app.controller('PrayerListCtrl', function($meteor, $state) {
