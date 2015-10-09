@@ -22,7 +22,11 @@ if (Meteor.isClient) {
   });
 
   app.controller('ImPrayingCtrl', function($scope) {
+    // Return the user collection associated with the provided user id
     $scope.lookupUser = (userId) => Meteor.users.findOne(userId);
+
+    // Return a boolean indicating whether or not the provided user id is the currently logged-in user
+    $scope.isCurrentUser = (userId) => userId === Meteor.userId();
   });
 
   app.controller('PrayerListCtrl', function($meteor, $state) {
