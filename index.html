@@ -10,6 +10,6 @@
       <md-button ng-click="impraying.logout()" ng-show="currentUser">Logout</md-button>
     </div>
 
-    <div ui-view></div>
+    <div ui-view ng-show="currentUser"></div>
   </div>
 </body>
