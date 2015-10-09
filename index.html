@@ -2,5 +2,10 @@
   <title>I'm Praying</title>
 </head>
 
-<body ng-app="im-praying" ng-include="'client/impraying.ng.html'" ng-controller="ImPrayingCtrl as impraying">
+<body ng-app="im-praying" ng-controller="ImPrayingCtrl as impraying">
+  <div layout="column" ng-cloak>
+    <blaze-template name="loginButtons"></blaze-template>
+
+    <div ui-view></div>
+  </div>
 </body>
