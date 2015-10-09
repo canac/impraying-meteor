@@ -88,6 +88,7 @@ Meteor.methods({
     }
 
     Prayers.remove(prayerId);
+    Comments.remove({ prayerId });
   },
 
   createComment: function(prayerId, comment) {
