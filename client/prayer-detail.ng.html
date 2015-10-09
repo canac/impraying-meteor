@@ -6,6 +6,24 @@
         <h4>{{prayerDetail.prayer.timestamp | date:'medium'}} (<span am-time-ago="prayerDetail.prayer.timestamp"></span>)</h4>
         <p>{{prayerDetail.prayer.content}}</p>
       </md-card-content>
+      <form ng-submit="prayerDetail.createComment()">
+        <md-input-container>
+          <label>New comment</label>
+          <input ng-model="prayerDetail.comment">
+        </md-input-container>
+        <md-input-container>
+          <md-button md-no-ink class="md-primary" ng-show="prayerDetail.comment">Create comment</md-button>
+        </md-input-container>
+      </form>
+      <md-list>
+        <md-list-item class="md-2-line" ng-repeat="comment in prayerDetail.comments">
+          <img ng-src="http://graph.facebook.com/{{lookupUser(comment.author).services.facebook.id}}/picture" class="md-avatar" />
+          <div class="md-list-item-text">
+            <h3>{{ lookupUser(comment.author).profile.name }} (<span am-time-ago="comment.timestamp"></span>)</h3>
+            <p>{{ comment.content }}</p>
+          </div>
+        </md-list-item>
+      </md-list>
       <div class="md-actions" layout="row" layout-align="end center">
         <md-button class="md-warn" ng-click="prayerDetail.destroyPrayer()">Delete</md-button>
       </div>

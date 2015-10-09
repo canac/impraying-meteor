@@ -1,4 +1,5 @@
 const Prayers = new Mongo.Collection('prayers');
+const Comments = new Mongo.Collection('comments');
 
 if (Meteor.isClient) {
   // This code only runs on the client
@@ -50,7 +51,22 @@ if (Meteor.isClient) {
   app.controller('PrayerDetailCtrl', function($meteor, $state, $stateParams) {
     const prayerId = $stateParams.id;
     this.prayer = Prayers.findOne(prayerId);
+    this.comments = $meteor.collection(() => Comments.find({ prayerId }, { sort: { timestamp: -1 } }));
 
+    // Create a new comment on the prayer request
+    this.createComment = function() {
+      this.comments.push({
+        author: Meteor.userId(),
+        prayerId,
+        content: this.comment,
+        timestamp: new Date(),
+      });
+
+      // Clear the comment in preparation for creating the next one
+      this.comment = '';
+    };
+
+    // Delete the prayer request and all of its comments
     this.destroyPrayer = function() {
       Prayers.remove(prayerId);
       $state.go('prayer-list');
