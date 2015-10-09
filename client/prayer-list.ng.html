@@ -1,16 +1,16 @@
 <div layout="column" ng-cloak>
   <md-content layout-padding>
-    <form ng-submit="prayers.createPrayer()">
+    <form ng-submit="prayerList.createPrayer()">
       <md-input-container>
         <label>New request</label>
-        <input ng-model="prayers.request">
+        <input ng-model="prayerList.request">
       </md-input-container>
       <md-input-container>
-        <md-button md-no-ink class="md-primary" ng-show="prayers.request">Create request</md-button>
+        <md-button md-no-ink class="md-primary" ng-show="prayerList.request">Create request</md-button>
       </md-input-container>
     </form>
     <md-list>
-      <md-list-item class="md-2-line" ng-repeat="prayer in prayers.prayers" ng-click="prayers.openPrayer(prayer._id)">
+      <md-list-item class="md-2-line" ng-repeat="prayer in prayerList.prayers" ng-click="prayerList.openPrayer(prayer._id)">
         <img ng-src="http://graph.facebook.com/{{lookupUser(prayer.author).services.facebook.id}}/picture" class="md-avatar" />
         <div class="md-list-item-text">
           <h3>{{ lookupUser(prayer.author).profile.name }} (<span am-time-ago="prayer.timestamp"></span>)</h3>

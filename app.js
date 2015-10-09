@@ -5,11 +5,11 @@ if (Meteor.isClient) {
   const app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
 
   app.config(function($stateProvider, $urlRouterProvider) {
-    $stateProvider.state('prayers', {
+    $stateProvider.state('prayer-list', {
       url: '/prayers',
-      templateUrl: 'client/prayers.ng.html',
-      controller: 'PrayersCtrl',
-      controllerAs: 'prayers',
+      templateUrl: 'client/prayer-list.ng.html',
+      controller: 'PrayerListCtrl',
+      controllerAs: 'prayerList',
     }).state('prayer-detail', {
       url: '/prayers/:id',
       templateUrl: 'client/prayer-detail.ng.html',
@@ -24,7 +24,7 @@ if (Meteor.isClient) {
     $scope.lookupUser = (userId) => Meteor.users.findOne(userId);
   });
 
-  app.controller('PrayersCtrl', function($meteor, $state) {
+  app.controller('PrayerListCtrl', function($meteor, $state) {
     // Initialize the scope variables
     this.request = '';
     this.prayers = $meteor.collection(() => Prayers.find({}, { sort: { timestamp: -1 } }));
@@ -53,7 +53,7 @@ if (Meteor.isClient) {
 
     this.destroyPrayer = function() {
       Prayers.remove(prayerId);
-      $state.go('prayers');
+      $state.go('prayer-list');
     };
   });
 }
