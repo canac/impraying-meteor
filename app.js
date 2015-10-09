@@ -10,14 +10,21 @@ if (Meteor.isClient) {
       templateUrl: 'client/prayers.ng.html',
       controller: 'PrayersCtrl',
       controllerAs: 'prayers',
+    }).state('prayer-detail', {
+      url: '/prayers/:id',
+      templateUrl: 'client/prayer-detail.ng.html',
+      controller: 'PrayerDetailCtrl',
+      controllerAs: 'prayerDetail',
     });
 
     $urlRouterProvider.otherwise('/prayers');
   });
 
-  app.controller('ImPrayingCtrl', function() {});
+  app.controller('ImPrayingCtrl', function($scope) {
+    $scope.lookupUser = (userId) => Meteor.users.findOne(userId);
+  });
 
-  app.controller('PrayersCtrl', function($meteor) {
+  app.controller('PrayersCtrl', function($meteor, $state) {
     // Initialize the scope variables
     this.request = '';
     this.prayers = $meteor.collection(() => Prayers.find({}, { sort: { timestamp: -1 } }));
@@ -34,7 +41,20 @@ if (Meteor.isClient) {
       this.request = '';
     };
 
-    this.lookupUser = (userId) => Meteor.users.findOne(userId);
+    // Open the detail page for the specified prayer
+    this.openPrayer = function(prayerId) {
+      $state.go('prayer-detail', { id: prayerId });
+    };
+  });
+
+  app.controller('PrayerDetailCtrl', function($meteor, $state, $stateParams) {
+    const prayerId = $stateParams.id;
+    this.prayer = Prayers.findOne(prayerId);
+
+    this.destroyPrayer = function() {
+      Prayers.remove(prayerId);
+      $state.go('prayers');
+    };
   });
 }
 

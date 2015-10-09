@@ -1,0 +1,14 @@
+<div layout="column" ng-cloak>
+  <md-content class="md-padding">
+    <md-card>
+      <md-card-content>
+        <h3 class="md-title">{{lookupUser(prayerDetail.prayer.author).profile.name}}</h3>
+        <h4>{{prayerDetail.prayer.timestamp | date:'medium'}} (<span am-time-ago="prayerDetail.prayer.timestamp"></span>)</h4>
+        <p>{{prayerDetail.prayer.content}}</p>
+      </md-card-content>
+      <div class="md-actions" layout="row" layout-align="end center">
+        <md-button class="md-warn" ng-click="prayerDetail.destroyPrayer()">Delete</md-button>
+      </div>
+    </md-card>
+  </md-content>
+</div>

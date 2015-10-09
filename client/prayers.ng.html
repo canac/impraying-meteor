@@ -10,10 +10,10 @@
       </md-input-container>
     </form>
     <md-list>
-      <md-list-item class="md-2-line" ng-repeat="prayer in prayers.prayers">
-        <img ng-src="http://graph.facebook.com/{{prayers.lookupUser(prayer.author).services.facebook.id}}/picture" class="md-avatar" />
+      <md-list-item class="md-2-line" ng-repeat="prayer in prayers.prayers" ng-click="prayers.openPrayer(prayer._id)">
+        <img ng-src="http://graph.facebook.com/{{lookupUser(prayer.author).services.facebook.id}}/picture" class="md-avatar" />
         <div class="md-list-item-text">
-          <h3>{{ prayers.lookupUser(prayer.author).profile.name }} (<span am-time-ago="prayer.timestamp"></span>)</h3>
+          <h3>{{ lookupUser(prayer.author).profile.name }} (<span am-time-ago="prayer.timestamp"></span>)</h3>
           <p>{{ prayer.content }}</p>
         </div>
       </md-list-item>
