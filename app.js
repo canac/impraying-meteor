@@ -5,6 +5,12 @@ if (Meteor.isClient) {
   // This code only runs on the client
   Meteor.startup(function() {
     Meteor.subscribe('userData');
+
+    // Update the friend list on startup and after successful logins
+    Accounts.onLogin(() => {
+      Meteor.call('updateFriends');
+    });
+    Meteor.call('updateFriends');
   });
 
   const app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
@@ -25,7 +31,7 @@ if (Meteor.isClient) {
     $urlRouterProvider.otherwise('/prayers');
   });
 
-  app.controller('ImPrayingCtrl', function($scope, $meteor) {
+  app.controller('ImPrayingCtrl', function($scope) {
     // Return the user collection associated with the provided user id
     $scope.lookupUser = (userId) => Meteor.users.findOne(userId);
 
@@ -41,8 +47,6 @@ if (Meteor.isClient) {
     this.logout = function() {
       Meteor.logout();
     };
-
-    $meteor.call('updateFriends');
   });
 
   app.controller('PrayerListCtrl', function($scope, $meteor, $state) {
