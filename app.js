@@ -124,15 +124,23 @@ Meteor.methods({
         throw err;
       }
 
-      // Get the Facebook ids of all the user's friends, including the user themselves
+      // Get the Facebook ids of all the user's friends
       const facebookIds = res.data.data.map(friend => friend.id);
-      facebookIds.push(facebookProfile.id);
 
       // Convert the array of Facebook ids to an array of Meteor user ids
       const friendIds = Meteor.users.find(
         { 'services.facebook.id': { $in: facebookIds } },
         { _id: true }
       ).map(friend => friend._id);
+
+      // Ignore this update on clients because they cannot mass update documents
+      if (!this.isSimulation) {
+        // Add the current user to all of their friends' friend lists
+        Meteor.users.update({ _id: { $in: friendIds } }, { $addToSet: { friends: this.userId } });
+      }
+
+      // Every user is considered to be their own friend
+      friendIds.push(this.userId);
 
       // Update the user's friend list
       Meteor.users.update(this.userId, { $set: { friends: friendIds } });
