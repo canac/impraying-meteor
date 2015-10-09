@@ -22,6 +22,7 @@
             <h3>{{ lookupUser(comment.author).profile.name }} (<span am-time-ago="comment.timestamp"></span>)</h3>
             <p>{{ comment.content }}</p>
           </div>
+          <md-button class="md-warn" ng-click="prayerDetail.deleteComment(comment._id)" ng-show="isCurrentUser(comment.author)">Delete</md-button>
         </md-list-item>
       </md-list>
       <div class="md-actions" layout="row" layout-align="end center" ng-show="isCurrentUser(prayerDetail.prayer.author)">

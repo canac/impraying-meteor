@@ -66,6 +66,11 @@ if (Meteor.isClient) {
       $meteor.call('deletePrayer', prayerId);
       $state.go('prayer-list');
     };
+
+    // Delete the comment
+    this.deleteComment = function(commentId) {
+      $meteor.call('deleteComment', commentId);
+    };
   });
 }
 
@@ -107,5 +112,15 @@ Meteor.methods({
       content: comment,
       timestamp: new Date(),
     });
+  },
+
+  deleteComment: function(commentId) {
+    // Users can only delete their own comments
+    const comment = Comments.findOne(commentId);
+    if (!Meteor.userId() || comment.author !== Meteor.userId()) {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    Comments.remove(commentId);
   },
 });
