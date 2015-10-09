@@ -3,6 +3,10 @@ const Comments = new Mongo.Collection('comments');
 
 if (Meteor.isClient) {
   // This code only runs on the client
+  Meteor.startup(function() {
+    Meteor.subscribe('userData');
+  });
+
   const app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
 
   app.config(function($stateProvider, $urlRouterProvider) {
@@ -21,7 +25,7 @@ if (Meteor.isClient) {
     $urlRouterProvider.otherwise('/prayers');
   });
 
-  app.controller('ImPrayingCtrl', function($scope) {
+  app.controller('ImPrayingCtrl', function($scope, $meteor) {
     // Return the user collection associated with the provided user id
     $scope.lookupUser = (userId) => Meteor.users.findOne(userId);
 
@@ -30,19 +34,32 @@ if (Meteor.isClient) {
 
     // Authenticate the user via Facebook
     this.login = function() {
-      Meteor.loginWithFacebook({ requestPermissions: ['public_profile'] });
+      Meteor.loginWithFacebook({ requestPermissions: ['public_profile', 'user_friends'] });
     };
 
     // Deauthenticate the user
     this.logout = function() {
       Meteor.logout();
     };
+
+    $meteor.call('updateFriends');
   });
 
   app.controller('PrayerListCtrl', function($scope, $meteor, $state) {
     // Initialize the scope variables
     this.request = '';
-    this.prayers = $scope.$meteorCollection(() => Prayers.find({}, { sort: { timestamp: -1 } }));
+
+    // Return the current user's friends as an array of Meteor user ids
+    this.getFriends = function() {
+      const user = Meteor.user();
+      return (user && user.friends) || [];
+    };
+
+    // Load all prayers whose author is one of the current user's friends
+    this.prayers = $scope.$meteorCollection(() => Prayers.find(
+      { author: { $in: this.getFriends() } },
+      { sort: { timestamp: -1 } },
+    ));
 
     // Create a new prayer request
     this.createPrayer = function() {
@@ -86,6 +103,38 @@ if (Meteor.isClient) {
 
 // Define Meteor methods
 Meteor.methods({
+  updateFriends: function() {
+    // Only logged-in users can update their friend list
+    if (!Meteor.userId()) {
+      return;
+    }
+
+    const facebookProfile = Meteor.user().services.facebook;
+    HTTP.get('https://graph.facebook.com/me/friends', {
+      params: {
+        access_token: facebookProfile.accessToken,
+        fields: 'id',
+      },
+    }, function(err, res) {
+      if (err) {
+        throw err;
+      }
+
+      // Get the Facebook ids of all the user's friends, including the user themselves
+      const facebookIds = res.data.data.map(friend => friend.id);
+      facebookIds.push(facebookProfile.id);
+
+      // Convert the array of Facebook ids to an array of Meteor user ids
+      const friendIds = Meteor.users.find(
+        { 'services.facebook.id': { $in: facebookIds } },
+        { _id: true }
+      ).map(friend => friend._id);
+
+      // Update the user's friend list
+      Meteor.users.update(Meteor.userId(), { $set: { friends: friendIds } });
+    });
+  },
+
   createPrayer: function(request) {
     // Only logged-in users can create prayer requests
     if (!Meteor.userId()) {
@@ -134,3 +183,23 @@ Meteor.methods({
     Comments.remove(commentId);
   },
 });
+
+if (Meteor.isServer) {
+  Meteor.startup(() => {
+    // Allow users to modify their own user document
+    Meteor.users.allow({
+      update: function(userId, document) {
+        return document._id === userId;
+      },
+    });
+
+    // Publish user friend lists
+    Meteor.publish('userData', function() {
+      if (this.userId) {
+        return Meteor.users.find(this.userId, { fields: { friends: true } });
+      } else {
+        this.ready();
+      }
+    });
+  });
+}
