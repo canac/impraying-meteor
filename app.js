@@ -105,7 +105,7 @@ if (Meteor.isClient) {
 Meteor.methods({
   updateFriends: function() {
     // Only logged-in users can update their friend list
-    if (!Meteor.userId()) {
+    if (!this.userId) {
       return;
     }
 
@@ -115,7 +115,7 @@ Meteor.methods({
         access_token: facebookProfile.accessToken,
         fields: 'id',
       },
-    }, function(err, res) {
+    }, (err, res) => {
       if (err) {
         throw err;
       }
@@ -131,18 +131,18 @@ Meteor.methods({
       ).map(friend => friend._id);
 
       // Update the user's friend list
-      Meteor.users.update(Meteor.userId(), { $set: { friends: friendIds } });
+      Meteor.users.update(this.userId, { $set: { friends: friendIds } });
     });
   },
 
   createPrayer: function(request) {
     // Only logged-in users can create prayer requests
-    if (!Meteor.userId()) {
+    if (!this.userId) {
       throw new Meteor.Error('not-authorized');
     }
 
     Prayers.insert({
-      author: Meteor.userId(),
+      author: this.userId,
       content: request,
       timestamp: new Date(),
     });
@@ -151,7 +151,7 @@ Meteor.methods({
   deletePrayer: function(prayerId) {
     // Users can only delete their own requests
     const prayer = Prayers.findOne(prayerId);
-    if (!Meteor.userId() || prayer.author !== Meteor.userId()) {
+    if (!this.userId || prayer.author !== this.userId) {
       throw new Meteor.Error('not-authorized');
     }
 
@@ -161,12 +161,12 @@ Meteor.methods({
 
   createComment: function(prayerId, comment) {
     // Only logged-in users can create comments
-    if (!Meteor.userId()) {
+    if (!this.userId) {
       throw new Meteor.Error('not-authorized');
     }
 
     Comments.insert({
-      author: Meteor.userId(),
+      author: this.userId,
       prayerId,
       content: comment,
       timestamp: new Date(),
@@ -176,7 +176,7 @@ Meteor.methods({
   deleteComment: function(commentId) {
     // Users can only delete their own comments
     const comment = Comments.findOne(commentId);
-    if (!Meteor.userId() || comment.author !== Meteor.userId()) {
+    if (!this.userId || comment.author !== this.userId) {
       throw new Meteor.Error('not-authorized');
     }
 
