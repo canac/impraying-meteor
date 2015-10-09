@@ -32,11 +32,7 @@ if (Meteor.isClient) {
 
     // Create a new prayer request
     this.createPrayer = function() {
-      this.prayers.push({
-        author: Meteor.userId(),
-        content: this.request,
-        timestamp: new Date(),
-      });
+      $meteor.call('createPrayer', this.request);
 
       // Clear the request in preparation for creating the next one
       this.request = '';
@@ -55,27 +51,56 @@ if (Meteor.isClient) {
 
     // Create a new comment on the prayer request
     this.createComment = function() {
-      this.comments.push({
-        author: Meteor.userId(),
-        prayerId,
-        content: this.comment,
-        timestamp: new Date(),
-      });
+      $meteor.call('createComment', prayerId, this.comment);
 
       // Clear the comment in preparation for creating the next one
       this.comment = '';
     };
 
     // Delete the prayer request and all of its comments
-    this.destroyPrayer = function() {
-      Prayers.remove(prayerId);
+    this.deletePrayer = function() {
+      $meteor.call('deletePrayer', prayerId);
       $state.go('prayer-list');
     };
   });
 }
 
-if (Meteor.isServer) {
-  Meteor.startup(function() {
-    // Code to run on server at startup
-  });
-}
+// Define Meteor methods
+Meteor.methods({
+  createPrayer: function(request) {
+    // Only logged-in users can create prayer requests
+    if (!Meteor.userId()) {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    Prayers.insert({
+      author: Meteor.userId(),
+      content: request,
+      timestamp: new Date(),
+    });
+  },
+
+  deletePrayer: function(prayerId) {
+    // Users can only delete their own requests
+    const prayer = Prayers.findOne(prayerId);
+    if (!Meteor.userId() || prayer.author !== Meteor.userId()) {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    Prayers.remove(prayerId);
+  },
+
+  createComment: function(prayerId, comment) {
+    // Only logged-in users can create comments
+    if (!Meteor.userId()) {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    Comments.insert({
+      author: Meteor.userId(),
+      prayerId,
+      content: comment,
+      timestamp: new Date(),
+    });
+  },
+});
