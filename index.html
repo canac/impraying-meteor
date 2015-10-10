@@ -5,9 +5,11 @@
 <body ng-app="im-praying" ng-controller="ImPrayingCtrl as impraying">
   <div layout="column" ng-cloak>
     <div layout="row">
-      <h1 ng-show="currentUser">{{currentUser.profile.name}}</h1>
-      <md-button ng-click="impraying.login()" ng-show="!currentUser">Login</md-button>
-      <md-button ng-click="impraying.logout()" ng-show="currentUser">Logout</md-button>
+      <md-content class="md-padding">
+        <h1 ng-show="currentUser">{{currentUser.profile.name}}</h1>
+        <md-button ng-click="impraying.login()" ng-show="!currentUser">Login</md-button>
+        <md-button ng-click="impraying.logout()" ng-show="currentUser">Logout</md-button>
+      </md-content>
     </div>
 
     <div ui-view ng-show="currentUser"></div>
