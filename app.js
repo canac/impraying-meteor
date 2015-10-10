@@ -61,7 +61,7 @@ if (Meteor.isClient) {
 
     // Load all prayers whose author is one of the current user's friends
     this.prayers = $scope.$meteorCollection(() => Prayers.find(
-      { author: { $in: this.getFriends() } },
+      { author: { $in: [Meteor.userId(), ...this.getFriends()] } },
       { sort: { timestamp: -1 } },
     ));
 
@@ -138,9 +138,6 @@ Meteor.methods({
         // Add the current user to all of their friends' friend lists
         Meteor.users.update({ _id: { $in: friendIds } }, { $addToSet: { friends: this.userId } });
       }
-
-      // Every user is considered to be their own friend
-      friendIds.push(this.userId);
 
       // Update the user's friend list
       Meteor.users.update(this.userId, { $set: { friends: friendIds } });
