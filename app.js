@@ -16,122 +16,145 @@ if (Meteor.isClient) {
 
   const app = angular.module('im-praying', ['angular-meteor', 'ui.router', 'ngMaterial', 'angularMoment']);
 
-  app.config(function($stateProvider, $urlRouterProvider) {
-    $stateProvider.state('prayer-list', {
-      url: '/prayers',
-      templateUrl: 'client/prayer-list.ng.html',
-      controller: 'PrayerListCtrl',
-      controllerAs: 'prayerList',
-    }).state('prayer-detail', {
-      url: '/prayers/:id',
-      templateUrl: 'client/prayer-detail.ng.html',
-      controller: 'PrayerDetailCtrl',
-      controllerAs: 'prayerDetail',
-    }).state('notification-list', {
-      url: '/notifications',
-      templateUrl: 'client/notification-list.ng.html',
-      controller: 'NotificationListCtrl',
-      controllerAs: 'notificationList',
-    });
+  app.config([
+    '$stateProvider',
+    '$urlRouterProvider',
+    function($stateProvider, $urlRouterProvider) {
+      $stateProvider.state('prayer-list', {
+        url: '/prayers',
+        templateUrl: 'client/prayer-list.ng.html',
+        controller: 'PrayerListCtrl',
+        controllerAs: 'prayerList',
+      }).state('prayer-detail', {
+        url: '/prayers/:id',
+        templateUrl: 'client/prayer-detail.ng.html',
+        controller: 'PrayerDetailCtrl',
+        controllerAs: 'prayerDetail',
+      }).state('notification-list', {
+        url: '/notifications',
+        templateUrl: 'client/notification-list.ng.html',
+        controller: 'NotificationListCtrl',
+        controllerAs: 'notificationList',
+      });
 
-    $urlRouterProvider.otherwise('/prayers');
-  });
+      $urlRouterProvider.otherwise('/prayers');
+    },
+  ]);
 
-  app.controller('ImPrayingCtrl', function($scope) {
-    // Return the user collection associated with the provided user id
-    $scope.lookupUser = userId => Meteor.users.findOne(userId);
+  app.controller('ImPrayingCtrl', [
+    '$scope',
+    function($scope) {
+      // Return the user collection associated with the provided user id
+      $scope.lookupUser = userId => Meteor.users.findOne(userId);
 
-    // Return a boolean indicating whether or not the provided user id is the currently logged-in user
-    $scope.isCurrentUser = userId => userId === Meteor.userId();
+      // Return a boolean indicating whether or not the provided user id is the currently logged-in user
+      $scope.isCurrentUser = userId => userId === Meteor.userId();
 
-    // Authenticate the user via Facebook
-    this.login = function() {
-      Meteor.loginWithFacebook({ requestPermissions: ['public_profile', 'user_friends'] });
-    };
+      // Authenticate the user via Facebook
+      this.login = function() {
+        Meteor.loginWithFacebook({ requestPermissions: ['public_profile', 'user_friends'] });
+      };
 
-    // Deauthenticate the user
-    this.logout = function() {
-      Meteor.logout();
-    };
-  });
+      // Deauthenticate the user
+      this.logout = function() {
+        Meteor.logout();
+      };
+    },
+  ]);
 
-  app.controller('PrayerListCtrl', function($scope, $meteor, $state) {
-    // Initialize the scope variables
-    this.request = '';
-
-    // Return the current user's friends as an array of Meteor user ids
-    this.getFriends = function() {
-      const user = Meteor.user();
-      return (user && user.friends) || [];
-    };
-
-    // Load all prayers whose author is one of the current user's friends
-    this.prayers = $scope.$meteorCollection(() => Prayers.find(
-      { author: { $in: [Meteor.userId(), ...this.getFriends()] } },
-      { sort: { timestamp: -1 } },
-    ));
-
-    // Create a new prayer request
-    this.createPrayer = function() {
-      $meteor.call('createPrayer', this.request);
-
-      // Clear the request in preparation for creating the next one
+  app.controller('PrayerListCtrl', [
+    '$scope',
+    '$meteor',
+    '$state',
+    function($scope, $meteor, $state) {
+      // Initialize the scope variables
       this.request = '';
-    };
 
-    // Open the detail page for the specified prayer
-    this.openPrayer = function(prayerId) {
-      $state.go('prayer-detail', { id: prayerId });
-    };
-  });
+      // Return the current user's friends as an array of Meteor user ids
+      this.getFriends = function() {
+        const user = Meteor.user();
+        return (user && user.friends) || [];
+      };
 
-  app.controller('PrayerDetailCtrl', function($scope, $meteor, $state, $stateParams) {
-    const prayerId = $stateParams.id;
-    this.prayer = Prayers.findOne(prayerId);
-    this.comments = $scope.$meteorCollection(() => Comments.find({ prayerId }, { sort: { timestamp: -1 } }));
+      // Load all prayers whose author is one of the current user's friends
+      this.prayers = $scope.$meteorCollection(() => Prayers.find(
+        { author: { $in: [Meteor.userId(), ...this.getFriends()] } },
+        { sort: { timestamp: -1 } },
+      ));
 
-    // Create a new comment on the prayer request
-    this.createComment = function() {
-      $meteor.call('createComment', prayerId, this.comment);
+      // Create a new prayer request
+      this.createPrayer = function() {
+        $meteor.call('createPrayer', this.request);
 
-      // Clear the comment in preparation for creating the next one
-      this.comment = '';
-    };
+        // Clear the request in preparation for creating the next one
+        this.request = '';
+      };
 
-    // Delete the prayer request and all of its comments
-    this.deletePrayer = function() {
-      $meteor.call('deletePrayer', prayerId);
-      this.goBack();
-    };
+      // Open the detail page for the specified prayer
+      this.openPrayer = function(prayerId) {
+        $state.go('prayer-detail', { id: prayerId });
+      };
+    },
+  ]);
 
-    // Delete the comment
-    this.deleteComment = function(commentId) {
-      $meteor.call('deleteComment', commentId);
-    };
+  app.controller('PrayerDetailCtrl', [
+    '$scope',
+    '$meteor',
+    '$state',
+    '$stateParams',
+    function($scope, $meteor, $state, $stateParams) {
+      const prayerId = $stateParams.id;
+      this.prayer = Prayers.findOne(prayerId);
+      this.comments = $scope.$meteorCollection(() => Comments.find({ prayerId }, { sort: { timestamp: -1 } }));
 
-    // Navigate to the prayer list
-    this.goBack = function() {
-      $state.go('prayer-list');
-    };
-  });
+      // Create a new comment on the prayer request
+      this.createComment = function() {
+        $meteor.call('createComment', prayerId, this.comment);
 
-  app.controller('NotificationListCtrl', function($scope, $meteor, $state) {
-    this.notifications = $scope.$meteorCollection(() => Notifications.find({ userId: Meteor.userId() }));
+        // Clear the comment in preparation for creating the next one
+        this.comment = '';
+      };
 
-    this.lookupComment = commentId => Comments.findOne(commentId);
+      // Delete the prayer request and all of its comments
+      this.deletePrayer = function() {
+        $meteor.call('deletePrayer', prayerId);
+        this.goBack();
+      };
 
-    this.openNotification = function(notification) {
-      const prayerId = this.lookupComment(notification.commentId).prayerId;
-      $state.go('prayer-detail', { id: prayerId });
+      // Delete the comment
+      this.deleteComment = function(commentId) {
+        $meteor.call('deleteComment', commentId);
+      };
 
-      // Delete the notification now that it has been read
-      this.deleteNotification(notification._id);
-    };
+      // Navigate to the prayer list
+      this.goBack = function() {
+        $state.go('prayer-list');
+      };
+    },
+  ]);
 
-    this.deleteNotification = function(notificationId) {
-      $meteor.call('deleteNotification', notificationId);
-    };
-  });
+  app.controller('NotificationListCtrl', [
+    '$scope',
+    '$meteor',
+    '$state',
+    function($scope, $meteor, $state) {
+      this.notifications = $scope.$meteorCollection(() => Notifications.find({ userId: Meteor.userId() }));
+
+      this.lookupComment = commentId => Comments.findOne(commentId);
+
+      this.openNotification = function(notification) {
+        const prayerId = this.lookupComment(notification.commentId).prayerId;
+        $state.go('prayer-detail', { id: prayerId });
+
+        // Delete the notification now that it has been read
+        this.deleteNotification(notification._id);
+      };
+
+      this.deleteNotification = function(notificationId) {
+        $meteor.call('deleteNotification', notificationId);
+      };
+    },
+  ]);
 }
 
 // Define Meteor methods
