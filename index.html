@@ -12,6 +12,11 @@
       </md-content>
     </div>
 
-    <div ui-view ng-show="currentUser"></div>
+    <md-tabs md-dynamic-height md-border-bottom>
+      <md-tab label="Prayers" ui-sref="prayer-list"></md-tab>
+      <md-tab label="Notifications" ui-sref="notification-list"></md-tab>
+    </md-tabs>
+
+    <div ui-view></div>
   </div>
 </body>

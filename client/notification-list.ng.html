@@ -1,0 +1,14 @@
+<div layout="column" ng-cloak>
+  <md-content layout-padding>
+    <md-list>
+      <md-list-item class="md-2-line" ng-repeat="notification in notificationList.notifications" ng-click="notificationList.openNotification(notification)" ng-init="comment = notificationList.lookupComment(notification.commentId)">
+        <img ng-src="http://graph.facebook.com/{{lookupUser(comment.author).services.facebook.id}}/picture" class="md-avatar" />
+        <div class="md-list-item-text">
+          <h3>{{ lookupUser(comment.author).profile.name }} commented on your request</h3>
+          <p>{{ comment.content }}</p>
+        </div>
+        <md-button class="md-warn" ng-click="notificationList.deleteNotification(notification._id)">Delete</md-button>
+      </md-list-item>
+    </md-list>
+  </md-content>
+</div>

@@ -1,5 +1,6 @@
 const Prayers = new Mongo.Collection('prayers');
 const Comments = new Mongo.Collection('comments');
+const Notifications = new Mongo.Collection('notifications');
 
 if (Meteor.isClient) {
   // This code only runs on the client
@@ -26,6 +27,11 @@ if (Meteor.isClient) {
       templateUrl: 'client/prayer-detail.ng.html',
       controller: 'PrayerDetailCtrl',
       controllerAs: 'prayerDetail',
+    }).state('notification-list', {
+      url: '/notifications',
+      templateUrl: 'client/notification-list.ng.html',
+      controller: 'NotificationListCtrl',
+      controllerAs: 'notificationList',
     });
 
     $urlRouterProvider.otherwise('/prayers');
@@ -103,6 +109,24 @@ if (Meteor.isClient) {
       $meteor.call('deleteComment', commentId);
     };
   });
+
+  app.controller('NotificationListCtrl', function($scope, $meteor, $state) {
+    this.notifications = $scope.$meteorCollection(() => Notifications.find({ userId: Meteor.userId() }));
+
+    this.lookupComment = commentId => Comments.findOne(commentId);
+
+    this.openNotification = function(notification) {
+      const prayerId = this.lookupComment(notification.commentId).prayerId;
+      $state.go('prayer-detail', { id: prayerId });
+
+      // Delete the notification now that it has been read
+      this.deleteNotification(notification._id);
+    };
+
+    this.deleteNotification = function(notificationId) {
+      $meteor.call('deleteNotification', notificationId);
+    };
+  });
 }
 
 // Define Meteor methods
@@ -174,12 +198,21 @@ Meteor.methods({
       throw new Meteor.Error('not-authorized');
     }
 
-    Comments.insert({
+    const commentId = Comments.insert({
       author: this.userId,
       prayerId,
       content: comment,
       timestamp: new Date(),
     });
+
+    // Notify the prayer's author about the new comment
+    const prayer = Prayers.findOne(prayerId);
+    if (prayer.author !== this.userId) {
+      Notifications.insert({
+        userId: prayer.author,
+        commentId,
+      });
+    }
   },
 
   deleteComment: function(commentId) {
@@ -190,6 +223,16 @@ Meteor.methods({
     }
 
     Comments.remove(commentId);
+  },
+
+  deleteNotification: function(notificationId) {
+    // Users can only delete their own notifications
+    const notification = Notifications.findOne(notificationId);
+    if (!this.userId || notification.userId !== this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+
+    Notifications.remove(notificationId);
   },
 });
 
