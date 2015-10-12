@@ -4,6 +4,16 @@ const Notifications = new Mongo.Collection('notifications');
 
 if (Meteor.isClient) {
   // This code only runs on the client
+  const onReady = function() {
+    angular.bootstrap(document, ['im-praying']);
+  };
+
+  if (Meteor.isCordova) {
+    angular.element(document).on('deviceready', onReady);
+  } else {
+    angular.element(document).ready(onReady);
+  }
+
   Meteor.startup(function() {
     Meteor.subscribe('userData');
 
