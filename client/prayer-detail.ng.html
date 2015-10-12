@@ -25,8 +25,9 @@
           <md-button class="md-warn" ng-click="prayerDetail.deleteComment(comment._id)" ng-show="isCurrentUser(comment.author)">Delete</md-button>
         </md-list-item>
       </md-list>
-      <div class="md-actions" layout="row" layout-align="end center" ng-show="isCurrentUser(prayerDetail.prayer.author)">
-        <md-button class="md-warn" ng-click="prayerDetail.deletePrayer()">Delete</md-button>
+      <div class="md-actions" layout="row" layout-align="center" ng-show="isCurrentUser(prayerDetail.prayer.author)">
+        <md-button ng-click="prayerDetail.goBack()" flex>Back</md-button>
+        <md-button class="md-warn" ng-click="prayerDetail.deletePrayer()" flex>Delete</md-button>
       </div>
     </md-card>
   </md-content>

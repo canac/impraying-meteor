@@ -101,12 +101,17 @@ if (Meteor.isClient) {
     // Delete the prayer request and all of its comments
     this.deletePrayer = function() {
       $meteor.call('deletePrayer', prayerId);
-      $state.go('prayer-list');
+      this.goBack();
     };
 
     // Delete the comment
     this.deleteComment = function(commentId) {
       $meteor.call('deleteComment', commentId);
+    };
+
+    // Navigate to the prayer list
+    this.goBack = function() {
+      $state.go('prayer-list');
     };
   });
 
